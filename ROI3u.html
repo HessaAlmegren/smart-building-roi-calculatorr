@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Building ROI Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input { width: calc(100% - 20px); padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { margin-top: 20px; padding: 10px; width: 100%; background-color: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .output { margin-top: 20px; padding: 20px; background-color: #e9f5e9; border-radius: 8px; }
+        .output p { margin: 5px 0; font-weight: bold; }
+        .chart { width: 100%; margin-top: 20px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Smart Building ROI Calculator</h1>
+    <p>Use this calculator to estimate the Return on Investment (ROI) for integrating smart building technologies.</p>
+    
+    <label for="numEmployees">Number of Employees:</label>
+    <input type="number" id="numEmployees" value="200">
+    
+    <label for="costPerEmployee">Cost per Employee ($):</label>
+    <input type="number" id="costPerEmployee" value="50000">
+    
+    <label for="initialInvestment">Initial Investment ($):</label>
+    <input type="number" id="initialInvestment" value="500000">
+    
+    <label for="annualMaintenance">Annual Maintenance Cost ($):</label>
+    <input type="number" id="annualMaintenance" value="50000">
+    
+    <label for="annualSavings">Annual Energy Savings ($):</label>
+    <input type="number" id="annualSavings" value="80000">
+    
+    <label for="maintenanceCostReduction">Maintenance Cost Reduction (%):</label>
+    <input type="number" id="maintenanceCostReduction" value="15">
+    
+    <button onclick="calculateROI()">Calculate ROI</button>
+    
+    <div class="output">
+        <h3>Results:</h3>
+        <p id="currentAnnualCosts"></p>
+        <p id="reducedEmployeeCosts"></p>
+        <p id="totalMaintenanceSavings"></p>
+        <p id="netAnnualSavings"></p>
+        <p id="paybackPeriod"></p>
+        <p id="tenYearSavings"></p>
+        <p id="totalCostsTenYears"></p>
+        <p id="netSavingsTenYears"></p>
+        <canvas id="savingsChart" class="chart"></canvas>
+    </div>
+</div>
+
+<script>
+    function calculateROI() {
+        const numEmployees = parseInt(document.getElementById('numEmployees').value);
+        const costPerEmployee = parseInt(document.getElementById('costPerEmployee').value);
+        const initialInvestment = parseInt(document.getElementById('initialInvestment').value);
+        const annualMaintenance = parseInt(document.getElementById('annualMaintenance').value);
+        const annualSavings = parseInt(document.getElementById('annualSavings').value);
+        const maintenanceCostReduction = parseInt(document.getElementById('maintenanceCostReduction').value);
+
+        // Current Annual Costs
+        const currentAnnualCosts = numEmployees * costPerEmployee;
+        document.getElementById('currentAnnualCosts').innerText = `Current Annual Costs: $${currentAnnualCosts.toLocaleString()}`;
+
+        // Reduced Employee Costs
+        const reducedEmployeeCosts = (numEmployees / 2) * costPerEmployee;
+        document.getElementById('reducedEmployeeCosts').innerText = `Reduced Employee Costs: $${reducedEmployeeCosts.toLocaleString()}`;
+
+        // Total Maintenance Cost Savings
+        const totalMaintenanceCostSavings = annualMaintenance * (maintenanceCostReduction / 100);
+        document.getElementById('totalMaintenanceSavings').innerText = `Total Maintenance Cost Savings: $${totalMaintenanceCostSavings.toLocaleString()}`;
+
+        // Net Annual Savings
+        const netAnnualSavings = (currentAnnualCosts - reducedEmployeeCosts) + annualSavings + totalMaintenanceCostSavings;
+        document.getElementById('netAnnualSavings').innerText = `Net Annual Savings: $${netAnnualSavings.toLocaleString()}`;
+
+        // Payback Period
+        const paybackPeriod = initialInvestment / netAnnualSavings;
+        document.getElementById('paybackPeriod').innerText = `Payback Period: ${paybackPeriod.toFixed(2)} years`;
+
+        // 10-Year Savings
+        const tenYearSavings = netAnnualSavings * 10;
+        document.getElementById('tenYearSavings').innerText = `10-Year Savings: $${tenYearSavings.toLocaleString()}`;
+
+        // Total Costs over 10 Years
+        const totalCostsTenYears = initialInvestment + (annualMaintenance * 10);
+        document.getElementById('totalCostsTenYears').innerText = `Total Costs over 10 Years: $${totalCostsTenYears.toLocaleString()}`;
+
+        // Net Savings over 10 Years
+        const netSavingsTenYears = tenYearSavings - totalCostsTenYears;
+        document.getElementById('netSavingsTenYears').innerText = `Net Savings over 10 Years: $${netSavingsTenYears.toLocaleString()}`;
+
+        // Chart Data
+        const ctx = document.getElementById('savingsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6', 'Year 7', 'Year 8', 'Year 9', 'Year 10'],
+                datasets: [{
+                    label: 'Annual Savings ($)',
+                    data: [
+                        netAnnualSavings,
+                        netAnnualSavings * 1.05, // Example of increased savings each year
+                        netAnnualSavings * 1.1,
+                        netAnnualSavings * 1.15,
+                        netAnnualSavings * 1.2,
+                        netAnnualSavings * 1.25,
+                        netAnnualSavings * 1.3,
+                        netAnnualSavings * 1.35,
+                        netAnnualSavings * 1.4,
+                        netAnnualSavings * 1.45
+                    ],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
